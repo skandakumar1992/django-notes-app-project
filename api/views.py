@@ -71,8 +71,17 @@ def deleteNote(request, pk):
 @api_view(['POST'])
 def createNote(request):
     data = request.data
-    note = Note.objects.create(
-        body=data['body']
-    )
+
+    body = data.get('body', '').strip()
+
+    if not body:
+        return Response(
+            {'error': 'Note body is required'},
+            status=400
+        )
+
+    note = Note.objects.create(body=body)
+
     serializer = NoteSerializer(note, many=False)
-    return Response(serializer.data)
+
+    return Response(serializer.data, status=201)
